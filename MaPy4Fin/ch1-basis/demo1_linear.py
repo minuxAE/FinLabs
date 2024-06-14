@@ -238,7 +238,7 @@ x(n+1) = D^{-1}(B-Rx)
 """
 
 def jacobi(A, B, n, tol=1e-10):
-    x = np.zeros_like(B)
+    x = np.zeros_like(B) # initialize
 
     for it_count in range(n):
         x_new = np.zeros_like(x)
@@ -255,6 +255,44 @@ def jacobi(A, B, n, tol=1e-10):
 
 def Jacobi_Solve():
     A = np.array([
+    [10., -1., 2., 0.], 
+    [-1., 11., -1., 3.], 
+    [2., -1., 10., -1.], 
+    [0.0, 3., -1., 8.]])
+
+    # B = np.array([6, 25, -11, 15]) # 这里存在精度问题
+    B = np.array([6., 25., -11., 15.])
+    n = 25
+
+    x = jacobi(A, B, n)
+    print(x)    
+
+"""
+2. Gauss-Seidel迭代法
+Ax = B
+(L+U)x = B
+Lx = B - Ux
+x(n+1) = L^{-1}(B-Ux(n))
+"""
+def gauss(A, B, n, tol=1e-10):
+    L = np.tril(A) # returns the lower triangle matrix of A
+    U = A - L
+    L_inv = np.linalg.inv(L)
+    x = np.zeros_like(B)
+
+    for i in range(n):
+        Ux = np.dot(U, x)
+        x_new = np.dot(L_inv, B-Ux)
+
+        if np.allclose(x, x_new, tol):
+            break
+
+        x = x_new
+
+    return x
+
+def Gauss_Solve():
+    A = np.array([
         [10, -1, 2, 0],
         [-1, 11, -1, 3],
         [2, -1, 10, -1],
@@ -263,13 +301,13 @@ def Jacobi_Solve():
 
     B = np.array([6, 25, -11, 15])
 
-    n = 25
+    n = 100
 
-    x = jacobi(A, B, n)
+    x = gauss(A, B, n)
     print(x)    
 
-
 if __name__ == '__main__':
+    # Gauss_Solve()
     Jacobi_Solve()
     # QR_Solve()
     # Cholesky_Solve()
