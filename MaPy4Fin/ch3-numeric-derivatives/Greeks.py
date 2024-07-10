@@ -63,8 +63,6 @@ def main():
     print('Delta: {:.4f}'.format(res_put[1]))
     print('Gamma: {:.4f}'.format(res_put[2]))
 
-
-
 if __name__ == '__main__':
     main()
 
