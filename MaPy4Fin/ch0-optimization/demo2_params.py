@@ -65,7 +65,8 @@ def foo3():
         model.getTuneResult(0)
         # 调参后文件保存
         model.write('ch0-optimization/models/tun.prm')
+        model.optimize() # 使用获取的最优参数组合再次求解模型
 
 
 if __name__ == '__main__':
-    foo2()
+    foo3()
