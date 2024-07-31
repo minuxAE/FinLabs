@@ -62,8 +62,54 @@ def foo4():
     model._vars = model.getVars()
     model.Params.PreCrush = 1
     model.optimize(my_callback)
-            
+
+def foo5():
+    model = grb.Model()
+    # 求解MIP问题的过程中, 在节点添加Lazy Cut
+    # 当MIP模型的完整约束集太大而无法显式表示时, 通常使用惰性约束.
+    # 通过只包含在分支割平面搜索过程中不满足条件的约束, 有时也可以在只添加完整约束集的一小部分时找到最优解
+
+    def my_callback(model, where):
+        if where == grb.GRB.Callback.MIPSOL:
+            sol = model.cbGetSolution([model._vars[0], model._vars[1]])
+            if sol[0] + sol[1] > 1.1:
+                model.cbLazy(model._vars[0] + model._vars[1] <= 1)
+
+    model._vars = model.getVars()
+    model.Params.lazyConstraints = 1
+    model.optimize(my_callback)
+
+def foo6():
+    model = grb.Model()
+    # 从当前节点导入解
+    def my_callback(model, where, newsolution):
+        if where == grb.GRB.Callback.MIPNODE: 
+            model.cbSetSolution(vars, newsolution)
+
+    model.optimize(my_callback)
+
+
+import time
+def foo7():
+    model = grb.Model()
+    # 在非分层的多目标优化问题中, 中断其优化过程
+    # 会先
+    def my_callback(model, where):
+        if where == grb.GRB.Callback.MULTIOBJ:
+            # 获取当前目标函数值
+            model._objcnt = model.cbGet(grb.GRB.Callback.MULTIOBJ_OBJCNT)
+            # 重置开始计时时间
+            model._starttime = time.time()
+        # 判断是否退出搜索
+        # elif time.time() - model._starttime > BIG or solution is good_enough:
+        #   model.cbStopOneMultiObj(model._objcnt)
+    
+    model._objcnt = 0
+    model._starttime = time.time()
+    model.optimize(my_callback)
+    
+
 
 
 if __name__ == '__main__':
-    foo4()
+    foo5()
